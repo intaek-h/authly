@@ -24,16 +24,18 @@ func main() {
 	r := chi.NewRouter()
 	v1 := chi.NewRouter()
 
-	r.Mount("/v1", v1)
+	r.Use(middleware.RealIP)
+	r.Use(middleware.RequestID)
+	r.Use(middleware.Logger)
+	r.Use(middleware.Recoverer)
 
-	v1.Use(middleware.RealIP)
-	v1.Use(middleware.RequestID)
-	v1.Use(middleware.Logger)
-	v1.Use(middleware.Recoverer)
+	r.Mount("/", pageResources{}.Routes())
+	r.Mount("/js", jsResources{}.Routes())
+	r.Mount("/api/v1/", v1)
+	v1.Mount("/users", usersResource{}.Routes())
+	v1.Mount("/auth", authResources{}.Routes())
 
 	v1.Get("/healthz", handlerReady)
-
-	v1.Mount("/users", usersResource{}.Routes())
 
 	log.Printf("server is on port %s", port)
 	http.ListenAndServe(":"+port, r)
