@@ -1,0 +1,43 @@
+package layouts
+
+import "github.com/authly/internal/env"
+
+templ head(title string, env env.Env) {
+	<head>
+		<title>{ title }</title>
+		<meta charset="UTF-8"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+		<script src="static/script/htmx.js"></script>
+		// <script src="static/script/response-targets.js"></script>
+		if env.Environment == "production" {
+			<link rel="stylesheet" href="static/css/style.min.css"/>
+		} else {
+			<link rel="stylesheet" href="static/css/style.css"/>
+		}
+	</head>
+}
+
+templ footer() {
+	<footer>
+		<p>© 2024 Authly</p>
+	</footer>
+}
+
+templ nav() {
+	<nav>
+		<a href="/">Home</a>
+		<a href="/about">About</a>
+		<a href="/contact">Contact</a>
+	</nav>
+}
+
+templ DefaultLayout(contents templ.Component, title string, env env.Env) {
+	@head(title, env)
+	<body>
+		@nav()
+		<main>
+			@contents
+		</main>
+		@footer()
+	</body>
+}
