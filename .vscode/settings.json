@@ -1,11 +1,16 @@
 {
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "explicit"
-  },
   "editor.formatOnSave": true,
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "tailwindCSS.suggestions": true,
+  "tailwindCSS.includeLanguages": {
+    "templ": "html"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
   "[templ]": {
     "editor.defaultFormatter": "a-h.templ"
+  },
+  "editor.suggest.snippetsPreventQuickSuggestions": false,
+  "emmet.includeLanguages": {
+    "templ": "html"
   }
 }

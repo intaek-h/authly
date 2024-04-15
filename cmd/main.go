@@ -10,7 +10,9 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/authly/internal/db"
 	"github.com/authly/internal/env"
+	"github.com/authly/internal/handlers/api"
 	"github.com/authly/internal/handlers/page"
 	m "github.com/authly/internal/middleware"
 	"github.com/go-chi/chi"
@@ -22,7 +24,12 @@ func main() {
 
 	envr := env.MustLoad()
 
-	// db := db.MustConnect(envr.DatabaseUrl)
+	db := db.MustConnect(envr.DatabaseUrl)
+
+	apis := api.APIs{
+		DB:  db,
+		Env: envr,
+	}
 
 	r := chi.NewRouter()
 
@@ -30,18 +37,30 @@ func main() {
 	fileServer := http.FileServer(http.Dir("./static"))
 	r.Handle("/static/*", http.StripPrefix("/static/", fileServer))
 
+	// Pages
 	r.Group(func(r chi.Router) {
 		r.Use(
 			middleware.RealIP,
 			middleware.RequestID,
 			middleware.Logger,
-			// middleware.Recoverer,
-			m.TextHTMLMiddleware,
+			m.ContentTypeHTMLMiddleware,
 		)
 
 		r.NotFound(page.NewNotFoundPageHandler().ServeHTTP)
 
 		r.Get("/", page.NewHomePageHandler().ServeHTTP)
+	})
+
+	// APIs
+	r.Group(func(r chi.Router) {
+		r.Use(
+			middleware.RealIP,
+			middleware.RequestID,
+			middleware.Logger,
+			m.ContentTypeHTMLMiddleware,
+		)
+
+		r.Get("/users/{id}", apis.HandlerGetUser)
 	})
 
 	killSignal := make(chan os.Signal, 1)
