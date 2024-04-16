@@ -6,14 +6,23 @@ package database
 
 import (
 	"database/sql"
+	"time"
 )
+
+type Session struct {
+	ID        int64
+	UserID    int64
+	ExpiresAt time.Time
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
 
 type User struct {
 	ID           int64
-	CreatedAt    string
-	UpdatedAt    string
-	RealName     string
-	Nickname     string
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+	RealName     sql.NullString
+	Nickname     sql.NullString
 	Email        string
 	ProfileImage sql.NullString
 }

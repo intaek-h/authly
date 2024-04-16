@@ -31,6 +31,11 @@ func main() {
 		Env: envr,
 	}
 
+	pages := page.Pages{
+		DB:  db,
+		Env: envr,
+	}
+
 	r := chi.NewRouter()
 
 	// Serve static files
@@ -46,9 +51,9 @@ func main() {
 			m.ContentTypeHTMLMiddleware,
 		)
 
-		r.NotFound(page.NewNotFoundPageHandler().ServeHTTP)
-
-		r.Get("/", page.NewHomePageHandler().ServeHTTP)
+		r.NotFound(pages.HandlerNotFoundPage)
+		r.Get("/", pages.HandlerHomePage)
+		r.Get("/auth/google/callback", pages.HandlerOAuthPage)
 	})
 
 	// APIs

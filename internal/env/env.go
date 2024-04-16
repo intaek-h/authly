@@ -9,9 +9,11 @@ import (
 )
 
 type Env struct {
-	Port        string `env:"PORT"`
-	DatabaseUrl string `env:"DATABASE_URL"`
-	Environment string `env:"ENVIRONMENT"`
+	Port               string `env:"PORT"`
+	DatabaseUrl        string `env:"DATABASE_URL"`
+	Environment        string `env:"ENVIRONMENT"`
+	GoogleClientID     string `env:"GOOGLE_CLIENT_ID"`
+	GoogleClientSecret string `env:"GOOGLE_CLIENT_SECRET"`
 }
 
 func loadEnv() (*Env, error) {
@@ -35,6 +37,16 @@ func loadEnv() (*Env, error) {
 	env.Environment = os.Getenv("ENVIRONMENT")
 	if env.Environment == "" {
 		env.Environment = "development"
+	}
+
+	env.GoogleClientID = os.Getenv("GOOGLE_CLIENT_ID")
+	if env.GoogleClientID == "" {
+		return nil, errors.New("google client id not set")
+	}
+
+	env.GoogleClientSecret = os.Getenv("GOOGLE_CLIENT_SECRET")
+	if env.GoogleClientSecret == "" {
+		return nil, errors.New("google client secret not set")
 	}
 
 	return &env, nil

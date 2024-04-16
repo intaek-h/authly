@@ -23,11 +23,17 @@ func (api *APIs) HandlerGetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := api.DB.GetUser(r.Context(), userIdInt64)
+	user, err := api.DB.GetUserById(r.Context(), userIdInt64)
 	if err != nil {
 		http.Error(w, "유저를 찾을 수 없습니다.", http.StatusNotFound)
 		return
 	}
 
-	w.Write([]byte(user.Nickname))
+	var nickname *string
+
+	if user.Nickname.Valid {
+		nickname = &user.Nickname.String
+	}
+
+	w.Write([]byte(*nickname))
 }

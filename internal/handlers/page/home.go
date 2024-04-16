@@ -8,13 +8,7 @@ import (
 	"github.com/authly/internal/templates/pages"
 )
 
-type HomePageHandler struct{}
-
-func NewHomePageHandler() *HomePageHandler {
-	return &HomePageHandler{}
-}
-
-func (h *HomePageHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (p *Pages) HandlerHomePage(w http.ResponseWriter, r *http.Request) {
 	page := pages.Home()
 	err := layouts.DefaultLayout(page, "인택", env.MustLoad()).Render(r.Context(), w)
 

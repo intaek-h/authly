@@ -1,10 +1,10 @@
 -- +goose Up
 CREATE TABLE users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    created_at TEXT NOT NULL,
-    updated_at TEXT NOT NULL,
-    real_name TEXT NOT NULL,
-    nickname TEXT NOT NULL,
+    created_at timestamp NOT NULL,
+    updated_at timestamp NOT NULL,
+    real_name TEXT,
+    nickname TEXT,
     email TEXT NOT NULL,
     profile_image TEXT
 );
