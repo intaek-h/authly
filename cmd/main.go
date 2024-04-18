@@ -10,6 +10,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/authly/internal/authenticator"
 	"github.com/authly/internal/db"
 	"github.com/authly/internal/env"
 	"github.com/authly/internal/handlers/api"
@@ -17,6 +18,7 @@ import (
 	m "github.com/authly/internal/middleware"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
+	"github.com/gorilla/sessions"
 )
 
 func main() {
@@ -26,14 +28,28 @@ func main() {
 
 	db := db.MustConnect(envr.DatabaseUrl)
 
+	auth, err := authenticator.New()
+	if err != nil {
+		logger.Error("Authenticator를 생성하는 중 오류가 발생했습니다.", slog.Any("error", err))
+		os.Exit(1)
+	}
+
+	store := sessions.NewCookieStore([]byte("store"))
+
 	apis := api.APIs{
-		DB:  db,
-		Env: envr,
+		DB:   db,
+		Env:  envr,
+		Auth: auth,
 	}
 
 	pages := page.Pages{
-		DB:  db,
-		Env: envr,
+		DB:   db,
+		Env:  envr,
+		Auth: auth,
+	}
+
+	middlewareStore := m.MiddlewareStore{
+		DB: db,
 	}
 
 	r := chi.NewRouter()
@@ -49,11 +65,13 @@ func main() {
 			middleware.RequestID,
 			middleware.Logger,
 			m.ContentTypeHTMLMiddleware,
+			middlewareStore.StateCookieMiddleware,
 		)
 
 		r.NotFound(pages.HandlerNotFoundPage)
 		r.Get("/", pages.HandlerHomePage)
-		r.Get("/auth/google/callback", pages.HandlerOAuthPage)
+		r.Get("/login", pages.HandlerLoginPage)
+		r.Get("/callback", pages.HandlerOAuthPage)
 	})
 
 	// APIs

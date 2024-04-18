@@ -1,6 +1,9 @@
 package layouts
 
-import "github.com/authly/internal/env"
+import (
+	"github.com/authly/internal/middleware"
+	"github.com/authly/internal/env"
+)
 
 templ head(title string, env env.Env) {
 	<head>
@@ -25,12 +28,17 @@ templ footer() {
 
 templ nav() {
 	<nav>
-		<a href="/">Home</a>
-		<a href="https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=705731504030-cbvnrbgl102c4mfugndu0cseca0hjv36.apps.googleusercontent.com&scope=email profile openid&redirect_uri=http://localhost:8080/auth/google/callback">
-			로그인
-		</a>
-		<a href="/about">About</a>
-		<a href="/contact">Contact</a>
+		<a href="/" hx-get="/" hx-target="main" hx-push-url="true">Home</a>
+		if middleware.GetUserFromContext(ctx) != nil {
+			<a href="/logout" hx-post="/logout" hx-target="main">Logout</a>
+		} else {
+			<a href="https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=705731504030-cbvnrbgl102c4mfugndu0cseca0hjv36.apps.googleusercontent.com&scope=email profile openid&redirect_uri=http://localhost:8080/auth/google/callback">
+				로그인
+			</a>
+		}
+		<a href="/login">login</a>
+		<a href="/about" hx-get="/about" hx-target="main" hx-push-url="true">About</a>
+		<a href="/contact" hx-get="/contact" hx-target="main" hx-push-url="true">Contact</a>
 	</nav>
 }
 

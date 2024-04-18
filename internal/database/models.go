@@ -19,6 +19,7 @@ type Session struct {
 
 type User struct {
 	ID           int64
+	SessionID    sql.NullInt64
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
 	RealName     sql.NullString

@@ -9,7 +9,6 @@
   "[templ]": {
     "editor.defaultFormatter": "a-h.templ"
   },
-  "editor.suggest.snippetsPreventQuickSuggestions": false,
   "emmet.includeLanguages": {
     "templ": "html"
   }

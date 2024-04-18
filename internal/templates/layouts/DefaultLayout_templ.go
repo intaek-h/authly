@@ -10,7 +10,10 @@ import "context"
 import "io"
 import "bytes"
 
-import "github.com/authly/internal/env"
+import (
+	"github.com/authly/internal/env"
+	"github.com/authly/internal/middleware"
+)
 
 func head(title string, env env.Env) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
@@ -32,7 +35,7 @@ func head(title string, env env.Env) templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layouts/DefaultLayout.templ`, Line: 7, Col: 16}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layouts/DefaultLayout.templ`, Line: 10, Col: 16}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
@@ -101,7 +104,22 @@ func nav() templ.Component {
 			templ_7745c5c3_Var4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<nav><a href=\"/\">Home</a> <a href=\"https://accounts.google.com/o/oauth2/v2/auth?response_type=code&amp;client_id=705731504030-cbvnrbgl102c4mfugndu0cseca0hjv36.apps.googleusercontent.com&amp;scope=email profile openid&amp;redirect_uri=http://localhost:8080/auth/google/callback\">로그인</a> <a href=\"/about\">About</a> <a href=\"/contact\">Contact</a></nav>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<nav><a href=\"/\" hx-get=\"/\" hx-target=\"main\" hx-push-url=\"true\">Home</a> ")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if middleware.GetUserFromContext(ctx) != nil {
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<a href=\"/logout\" hx-post=\"/logout\" hx-target=\"main\">Logout</a> ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		} else {
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<a href=\"https://accounts.google.com/o/oauth2/v2/auth?response_type=code&amp;client_id=705731504030-cbvnrbgl102c4mfugndu0cseca0hjv36.apps.googleusercontent.com&amp;scope=email profile openid&amp;redirect_uri=http://localhost:8080/auth/google/callback\">로그인</a> ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<a href=\"/login\">login</a> <a href=\"/about\" hx-get=\"/about\" hx-target=\"main\" hx-push-url=\"true\">About</a> <a href=\"/contact\" hx-get=\"/contact\" hx-target=\"main\" hx-push-url=\"true\">Contact</a></nav>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -12,21 +12,17 @@ import (
 )
 
 const createUser = `-- name: CreateUser :one
-insert into users (
-    created_at,
-    updated_at,
-    real_name,
-    nickname,
-    email,
-    profile_image
-) values (
-    ?,
-    ?,
-    ?,
-    ?,
-    ?,
-    ?
-) returning id, created_at, updated_at, real_name, nickname, email, profile_image
+insert into
+    users (
+        created_at,
+        updated_at,
+        real_name,
+        nickname,
+        email,
+        profile_image
+    )
+values
+    (?, ?, ?, ?, ?, ?) returning id, session_id, created_at, updated_at, real_name, nickname, email, profile_image
 `
 
 type CreateUserParams struct {
@@ -50,6 +46,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	var i User
 	err := row.Scan(
 		&i.ID,
+		&i.SessionID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.RealName,
@@ -61,7 +58,12 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-select id, created_at, updated_at, real_name, nickname, email, profile_image from users where email = ?
+select
+    id, session_id, created_at, updated_at, real_name, nickname, email, profile_image
+from
+    users
+where
+    email = ?
 `
 
 func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error) {
@@ -69,6 +71,7 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 	var i User
 	err := row.Scan(
 		&i.ID,
+		&i.SessionID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.RealName,
@@ -80,7 +83,12 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 }
 
 const getUserById = `-- name: GetUserById :one
-select id, created_at, updated_at, real_name, nickname, email, profile_image from users where id = ?
+select
+    id, session_id, created_at, updated_at, real_name, nickname, email, profile_image
+from
+    users
+where
+    id = ?
 `
 
 func (q *Queries) GetUserById(ctx context.Context, id int64) (User, error) {
@@ -88,6 +96,36 @@ func (q *Queries) GetUserById(ctx context.Context, id int64) (User, error) {
 	var i User
 	err := row.Scan(
 		&i.ID,
+		&i.SessionID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.RealName,
+		&i.Nickname,
+		&i.Email,
+		&i.ProfileImage,
+	)
+	return i, err
+}
+
+const updateUserSession = `-- name: UpdateUserSession :one
+update users
+set
+    session_id = ?
+where
+    id = ? returning id, session_id, created_at, updated_at, real_name, nickname, email, profile_image
+`
+
+type UpdateUserSessionParams struct {
+	SessionID sql.NullInt64
+	ID        int64
+}
+
+func (q *Queries) UpdateUserSession(ctx context.Context, arg UpdateUserSessionParams) (User, error) {
+	row := q.db.QueryRowContext(ctx, updateUserSession, arg.SessionID, arg.ID)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.SessionID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.RealName,

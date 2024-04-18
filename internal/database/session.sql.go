@@ -7,21 +7,15 @@ package database
 
 import (
 	"context"
+	"database/sql"
 	"time"
 )
 
 const createSession = `-- name: CreateSession :one
-insert into sessions (
-    user_id,
-    expires_at,
-    created_at,
-    updated_at
-) values (
-    ?,
-    ?,
-    ?,
-    ?
-) returning id
+insert into
+    sessions (user_id, expires_at, created_at, updated_at)
+values
+    (?, ?, ?, ?) returning id, user_id, expires_at, created_at, updated_at
 `
 
 type CreateSessionParams struct {
@@ -31,14 +25,82 @@ type CreateSessionParams struct {
 	UpdatedAt time.Time
 }
 
-func (q *Queries) CreateSession(ctx context.Context, arg CreateSessionParams) (int64, error) {
+func (q *Queries) CreateSession(ctx context.Context, arg CreateSessionParams) (Session, error) {
 	row := q.db.QueryRowContext(ctx, createSession,
 		arg.UserID,
 		arg.ExpiresAt,
 		arg.CreatedAt,
 		arg.UpdatedAt,
 	)
-	var id int64
-	err := row.Scan(&id)
-	return id, err
+	var i Session
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.ExpiresAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getSession = `-- name: GetSession :one
+select
+    id, user_id, expires_at, created_at, updated_at
+from
+    sessions
+where
+    id = ?
+`
+
+func (q *Queries) GetSession(ctx context.Context, id int64) (Session, error) {
+	row := q.db.QueryRowContext(ctx, getSession, id)
+	var i Session
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.ExpiresAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getUserFromSession = `-- name: GetUserFromSession :one
+select
+    users.id, users.session_id, users.created_at, users.updated_at, users.real_name, users.nickname, users.email, users.profile_image,
+    sessions.expires_at as session_expires_at
+from
+    sessions
+    join users on sessions.user_id = users.id
+where
+    sessions.id = ?
+`
+
+type GetUserFromSessionRow struct {
+	ID               int64
+	SessionID        sql.NullInt64
+	CreatedAt        time.Time
+	UpdatedAt        time.Time
+	RealName         sql.NullString
+	Nickname         sql.NullString
+	Email            string
+	ProfileImage     sql.NullString
+	SessionExpiresAt time.Time
+}
+
+func (q *Queries) GetUserFromSession(ctx context.Context, id int64) (GetUserFromSessionRow, error) {
+	row := q.db.QueryRowContext(ctx, getUserFromSession, id)
+	var i GetUserFromSessionRow
+	err := row.Scan(
+		&i.ID,
+		&i.SessionID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.RealName,
+		&i.Nickname,
+		&i.Email,
+		&i.ProfileImage,
+		&i.SessionExpiresAt,
+	)
+	return i, err
 }

@@ -4,14 +4,16 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/authly/internal/authenticator"
 	"github.com/authly/internal/database"
 	"github.com/authly/internal/env"
 	"github.com/go-chi/chi"
 )
 
 type APIs struct {
-	DB  *database.Queries
-	Env env.Env
+	DB   *database.Queries
+	Env  env.Env
+	Auth *authenticator.Authenticator
 }
 
 func (api *APIs) HandlerGetUser(w http.ResponseWriter, r *http.Request) {
