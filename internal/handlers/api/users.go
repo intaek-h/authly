@@ -8,12 +8,14 @@ import (
 	"github.com/authly/internal/database"
 	"github.com/authly/internal/env"
 	"github.com/go-chi/chi"
+	"github.com/gorilla/sessions"
 )
 
 type APIs struct {
-	DB   *database.Queries
-	Env  env.Env
-	Auth *authenticator.Authenticator
+	DB      *database.Queries
+	Env     env.Env
+	Auth    *authenticator.Authenticator
+	Session *sessions.CookieStore
 }
 
 func (api *APIs) HandlerGetUser(w http.ResponseWriter, r *http.Request) {

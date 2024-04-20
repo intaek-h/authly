@@ -21,7 +21,21 @@ func (p *Pages) HandlerHomePage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := layouts.DefaultLayout(page, "인택", env.MustLoad()).Render(r.Context(), w)
+	session, err := p.Session.Get(r, "auth-session")
+
+	if session.IsNew || err != nil {
+		err := layouts.DefaultLayout(page, "홈페이지", env.MustLoad()).Render(r.Context(), w)
+		if err != nil {
+			http.Error(w, "템플릿 제작중 오류가 발생했습니다.", http.StatusInternalServerError)
+			return
+		}
+
+		return
+	}
+
+	profile := session.Values["profile"].(map[string]interface{})
+
+	err = layouts.DefaultLayout(page, profile["nickname"].(string), env.MustLoad()).Render(r.Context(), w)
 
 	if err != nil {
 		http.Error(w, "템플릿 제작중 오류가 발생했습니다.", http.StatusInternalServerError)

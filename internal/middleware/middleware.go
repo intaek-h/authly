@@ -3,17 +3,18 @@ package middleware
 import (
 	"context"
 	"encoding/base64"
-	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/authly/internal/database"
+	"github.com/gorilla/sessions"
 )
 
 type MiddlewareStore struct {
-	DB *database.Queries
+	DB      *database.Queries
+	Session *sessions.CookieStore
 }
 
 func ContentTypeHTMLMiddleware(next http.Handler) http.Handler {
@@ -23,19 +24,11 @@ func ContentTypeHTMLMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-// TODO: HX-Request 여부 처리하는 미들웨어 구현.
-// func HxRequestMiddleware(next http.Handler) http.Handler {
-// 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-// 		if r.Header.Get("HX-Request") == "true" {
-// 			r.Context().Value("hx-request")
-// 		}
-// 	})
-// }
-
 type UserContextKey string
 
 var UserKey UserContextKey = "user"
 
+// TODO: 필요 없음. 지우기.
 func (md *MiddlewareStore) SessionMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		sessionCookie, err := r.Cookie("session")
@@ -92,9 +85,12 @@ func GetUserFromContext(ctx context.Context) *database.GetUserFromSessionRow {
 
 func (md *MiddlewareStore) StateCookieMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		stateCookie, _ := r.Cookie("state")
+		// session, _ := md.Session.Get(r, "auth-session")
 
-		fmt.Printf("stateCookie: %v\n", stateCookie)
+		// if !session.IsNew {
+		// 	profile := session.Values["profile"].(map[string]interface{})
+		// 	fmt.Printf("profile: %#v\n", profile["nickname"])
+		// }
 
 		next.ServeHTTP(w, r)
 	})

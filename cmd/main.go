@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/gob"
 	"errors"
 	"log/slog"
 	"net/http"
@@ -26,7 +27,7 @@ func main() {
 
 	envr := env.MustLoad()
 
-	db := db.MustConnect(envr.DatabaseUrl)
+	db := db.MustConnect(&envr)
 
 	auth, err := authenticator.New()
 	if err != nil {
@@ -34,22 +35,30 @@ func main() {
 		os.Exit(1)
 	}
 
+	// 세션을 DB 대신 쿠키에 저장하는 것.
+	// TODO: authentication key 를 환경변수로 관리해야함.
 	store := sessions.NewCookieStore([]byte("store"))
 
+	// TODO: 얘가 뭐하는앤지 모르겠음. 근데 이거 안하면 session.Save() 가 안됨.
+	gob.Register(map[string]interface{}{})
+
 	apis := api.APIs{
-		DB:   db,
-		Env:  envr,
-		Auth: auth,
+		DB:      db,
+		Env:     envr,
+		Auth:    auth,
+		Session: store,
 	}
 
 	pages := page.Pages{
-		DB:   db,
-		Env:  envr,
-		Auth: auth,
+		DB:      db,
+		Env:     envr,
+		Auth:    auth,
+		Session: store,
 	}
 
 	middlewareStore := m.MiddlewareStore{
-		DB: db,
+		DB:      db,
+		Session: store,
 	}
 
 	r := chi.NewRouter()
@@ -71,6 +80,7 @@ func main() {
 		r.NotFound(pages.HandlerNotFoundPage)
 		r.Get("/", pages.HandlerHomePage)
 		r.Get("/login", pages.HandlerLoginPage)
+		r.Get("/logout", pages.HandlerLogoutPage)
 		r.Get("/callback", pages.HandlerOAuthPage)
 	})
 

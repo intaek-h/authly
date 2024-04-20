@@ -7,42 +7,23 @@ import (
 )
 
 func (p *Pages) HandlerLoginPage(w http.ResponseWriter, r *http.Request) {
-	state, err := generateRandomState()
+	sessionId, err := generateRandomState()
 	if err != nil {
 		http.Error(w, "로그인 상태를 생성하는 중 오류가 발생했습니다.", http.StatusInternalServerError)
 		return
 	}
 
-	http.SetCookie(w, &http.Cookie{
-		Name:     "state",
-		Value:    state,
-		HttpOnly: true,
-		SameSite: http.SameSiteStrictMode,
-		Secure:   true,
-		Path:     "/",
-	})
+	session, _ := p.Session.Get(r, "auth-session")
+	session.Values["state"] = sessionId
+
+	err = session.Save(r, w)
+	if err != nil {
+		http.Error(w, "세션 저장 중 오류가 발생했습니다.", http.StatusInternalServerError)
+		return
+	}
 
 	// Redirect to Google OAuth2
-	http.Redirect(w, r, p.Auth.AuthCodeURL(state), http.StatusFound)
-
-	// page := pages.Home()
-
-	// if r.Header.Get("HX-Request") == "true" {
-	// 	err := page.Render(r.Context(), w)
-	// 	if err != nil {
-	// 		http.Error(w, "템플릿 제작중 오류가 발생했습니다.", http.StatusInternalServerError)
-	// 		return
-	// 	}
-
-	// 	return
-	// }
-
-	// err := layouts.DefaultLayout(page, "인택", env.MustLoad()).Render(r.Context(), w)
-
-	// if err != nil {
-	// 	http.Error(w, "템플릿 제작중 오류가 발생했습니다.", http.StatusInternalServerError)
-	// 	return
-	// }
+	http.Redirect(w, r, p.Auth.AuthCodeURL(sessionId), http.StatusFound)
 }
 
 func generateRandomState() (string, error) {
