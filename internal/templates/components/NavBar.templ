@@ -1,0 +1,11 @@
+package components
+
+templ NavBar(oobSwap bool) {
+	<nav>
+		<a href="/" hx-get="/" hx-target="main" hx-push-url="true">Home</a>
+		<a href="/login">login</a>
+		<a href="/logout">logout</a>
+		<a href="/about" hx-get="/about" hx-target="main" hx-push-url="true">About</a>
+		<a href="/contact" hx-get="/contact" hx-target="main" hx-push-url="true">Contact</a>
+	</nav>
+}

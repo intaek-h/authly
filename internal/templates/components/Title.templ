@@ -1,0 +1,14 @@
+package components
+
+import (
+	"github.com/authly/internal/templates"
+)
+
+templ Title(oobSwap bool) {
+	<title
+		id="head-title"
+		if oobSwap {
+			hx-swap-oob="true"
+		}
+	>{ templates.GetPageTitle(ctx) }</title>
+}

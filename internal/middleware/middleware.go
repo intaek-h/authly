@@ -9,11 +9,13 @@ import (
 	"time"
 
 	"github.com/authly/internal/database"
+	"github.com/authly/internal/env"
 	"github.com/gorilla/sessions"
 )
 
 type MiddlewareStore struct {
 	DB      *database.Queries
+	Env     *env.Env
 	Session *sessions.CookieStore
 }
 
@@ -93,5 +95,25 @@ func (md *MiddlewareStore) StateCookieMiddleware(next http.Handler) http.Handler
 		// }
 
 		next.ServeHTTP(w, r)
+	})
+}
+
+func (md *MiddlewareStore) HxContextMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		isHxRequest := r.Header.Get("HX-Request") == "true"
+
+		ctx := context.WithValue(r.Context(), "isHxRequest", isHxRequest)
+
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
+func (md *MiddlewareStore) IsPRDContextMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		isProduction := md.Env.Environment == "production"
+
+		ctx := context.WithValue(r.Context(), "isProduction", isProduction)
+
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

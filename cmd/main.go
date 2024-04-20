@@ -58,6 +58,7 @@ func main() {
 
 	middlewareStore := m.MiddlewareStore{
 		DB:      db,
+		Env:     &envr,
 		Session: store,
 	}
 
@@ -74,7 +75,8 @@ func main() {
 			middleware.RequestID,
 			middleware.Logger,
 			m.ContentTypeHTMLMiddleware,
-			middlewareStore.StateCookieMiddleware,
+			middlewareStore.HxContextMiddleware,
+			middlewareStore.IsPRDContextMiddleware,
 		)
 
 		r.NotFound(pages.HandlerNotFoundPage)

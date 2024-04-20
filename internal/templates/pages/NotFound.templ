@@ -1,5 +1,22 @@
 package pages
 
+import (
+	"github.com/authly/internal/templates"
+	"github.com/authly/internal/templates/layouts"
+)
+
 templ NotFound() {
-	<h1>404 Not Found</h1>
+	if templates.IsHxRequest(ctx) {
+		@layouts.HXLayout() {
+			@NotFoundContent()
+		}
+	} else {
+		@layouts.DefaultLayout() {
+			@NotFoundContent()
+		}
+	}
+}
+
+templ NotFoundContent() {
+	<h1>그런페이지는없어요~</h1>
 }

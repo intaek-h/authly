@@ -1,22 +1,26 @@
 package layouts
 
 import (
-	"github.com/authly/internal/env"
+	"github.com/authly/internal/templates/components"
+	"github.com/authly/internal/templates"
 )
 
-templ head(title string, env env.Env) {
-	<head>
-		<title>{ title }</title>
-		<meta charset="UTF-8"/>
-		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-		<script src="static/script/htmx.js"></script>
-		// <script src="static/script/response-targets.js"></script>
-		if env.Environment == "production" {
-			<link rel="stylesheet" href="static/css/style.min.css"/>
-		} else {
-			<link rel="stylesheet" href="static/css/style.css"/>
-		}
-	</head>
+templ head() {
+	<!DOCTYPE html>
+	<html lang="ko">
+		<head>
+			<meta charset="UTF-8"/>
+			@components.Title(false)
+			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+			<script src="static/script/htmx.js"></script>
+			// <script src="static/script/response-targets.js"></script>
+			if templates.IsProduction(ctx) {
+				<link rel="stylesheet" href="static/css/style.min.css"/>
+			} else {
+				<link rel="stylesheet" href="static/css/style.css"/>
+			}
+		</head>
+	</html>
 }
 
 templ footer() {
@@ -25,22 +29,12 @@ templ footer() {
 	</footer>
 }
 
-templ nav() {
-	<nav>
-		<a href="/" hx-get="/" hx-target="main" hx-push-url="true">Home</a>
-		<a href="/login">login</a>
-		<a href="/logout">logout</a>
-		<a href="/about" hx-get="/about" hx-target="main" hx-push-url="true">About</a>
-		<a href="/contact" hx-get="/contact" hx-target="main" hx-push-url="true">Contact</a>
-	</nav>
-}
-
-templ DefaultLayout(contents templ.Component, title string, env env.Env) {
-	@head(title, env)
+templ DefaultLayout() {
+	@head()
 	<body>
-		@nav()
+		@components.NavBar(false)
 		<main>
-			@contents
+			{ children... }
 		</main>
 		@footer()
 	</body>
