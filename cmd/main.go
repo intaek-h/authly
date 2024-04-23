@@ -77,6 +77,7 @@ func main() {
 			m.ContentTypeHTMLMiddleware,
 			middlewareStore.HxContextMiddleware,
 			middlewareStore.IsPRDContextMiddleware,
+			middlewareStore.NonceMiddleware,
 		)
 
 		r.NotFound(pages.HandlerNotFoundPage)

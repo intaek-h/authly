@@ -1,6 +1,10 @@
 package templates
 
-import "context"
+import (
+	"context"
+
+	"github.com/authly/internal/middleware"
+)
 
 // TODO: context 키 상수로 관리해야 함.
 
@@ -29,4 +33,12 @@ func IsHxRequest(ctx context.Context) bool {
 		return false
 	}
 	return hxRequest
+}
+
+func GetNonce(ctx context.Context) string {
+	nonce, ok := ctx.Value(middleware.NonceKey).(string)
+	if !ok {
+		return ""
+	}
+	return nonce
 }

@@ -89,7 +89,7 @@ func HomeContent() templ.Component {
 			templ_7745c5c3_Var4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<h1 class=\"text-primary-600 font-bold text-2xl\">안녕하세요~</h1><p>반가워요~</p>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"bg-gradient-to-b from-white bg-yellow-200 from-80% w-screen h-screen\"><div class=\"relative w-full h-full\"><div class=\"absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2\"></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -12,12 +12,12 @@ templ head() {
 			<meta charset="UTF-8"/>
 			@components.Title(false)
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-			<script src="static/script/htmx.js"></script>
+			<script src="static/script/htmx.js" nonce={ templates.GetNonce(ctx) }></script>
 			// <script src="static/script/response-targets.js"></script>
 			if templates.IsProduction(ctx) {
-				<link rel="stylesheet" href="static/css/style.min.css"/>
+				<link rel="stylesheet" href="static/css/style.min.css" nonce={ templates.GetNonce(ctx) }/>
 			} else {
-				<link rel="stylesheet" href="static/css/style.css"/>
+				<link rel="stylesheet" href="static/css/style.css" nonce={ templates.GetNonce(ctx) }/>
 			}
 		</head>
 	</html>
@@ -32,10 +32,10 @@ templ footer() {
 templ DefaultLayout() {
 	@head()
 	<body>
-		@components.NavBar(false)
+		// @components.NavBar(false)
 		<main>
 			{ children... }
 		</main>
-		@footer()
+		// @footer()
 	</body>
 }
